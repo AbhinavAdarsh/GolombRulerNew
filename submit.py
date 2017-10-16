@@ -31,6 +31,7 @@ def contraintCheck(newmarks, mark, newdifference, status):
 def recursiveBacktracking(L, M, start, newmarks, newdomain, newruler, newdifference):
     global flag
     global ans
+
     if start >= L or flag == 1:
         return
     # print "Marks =", newmarks, "start = ", start
@@ -39,7 +40,7 @@ def recursiveBacktracking(L, M, start, newmarks, newdomain, newruler, newdiffere
         newmarks.append(start)
         newdomain.remove(start)
         if len(newmarks) == M:
-            print "Solution Found"
+            # print "Solution Found"
             newmarks.sort()
             # print "Sol =", newmarks
             if flag == 0:
@@ -56,29 +57,32 @@ def recursiveBacktracking(L, M, start, newmarks, newdomain, newruler, newdiffere
 
     recursiveBacktracking(L, M, start+1, newmarks, newdomain, newruler, newdifference)
 
+def BT(L, M):
 
-def BT(L, M, start):
-    global ans
-    marks = [0,L]
-    ruler = range(1,L)
-    domain = range(1,L)
-    difference = set()
 
-    recursiveBacktracking(L, M, 1, marks, domain, ruler, difference)
+    final = []
 
-    if len(ans) != 0:
-        return ans[-1],ans
+    for l in range(L,0,-1):
+        global ans
+        global flag
+        ans = []
+        marks = [0,l]
+        ruler = range(1,l)
+        domain = range(1,l)
+        difference = set()
+        flag = 0
+        recursiveBacktracking(l, M, 1, marks, domain, ruler, difference)
+        # print l, "ans = ", ans
+        if len(ans) != 0:
+            final = ans[:]
+        else:
+            break
 
-    return -1, []
+    if len(final) != 0:
+        return final[-1],final
+
     "*** YOUR CODE HERE ***"
-    # return -1,[]
-flag = 0
-ans = []
-print BT(6,4,1)
-flag = 0
-ans = []
-print BT(85,12,1)
-
+    return -1,[]
 
 
 #Your backtracking+Forward checking function implementation
@@ -91,4 +95,6 @@ def CP(L, M):
     "*** YOUR CODE HERE ***"
     return -1,[]
 
-
+flag = 0
+ans = []
+print BT(8,4)
