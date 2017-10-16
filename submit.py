@@ -3,6 +3,8 @@
 #Each of your functions should return the minimum possible L value alongside the marker positions
 #Or return -1,[] if no solution exists for the given L
 
+import time
+start_time = time.time()
 
 def contraintCheck(newmarks, mark, newdifference, status):
     # print "DiFF Before = ", newdifference
@@ -34,7 +36,7 @@ def recursiveBacktracking(L, M, start, newmarks, newdomain, newruler, newdiffere
 
     if start >= L or flag == 1:
         return
-    # print "Marks =", newmarks, "start = ", start
+    #print "Marks =", newmarks, "start = ", start
 
     if contraintCheck(newmarks, start, newdifference, True) is True:
         newmarks.append(start)
@@ -50,7 +52,7 @@ def recursiveBacktracking(L, M, start, newmarks, newdomain, newruler, newdiffere
             return newmarks[-1], newmarks
 
         recursiveBacktracking(L, M, start+1, newmarks, newdomain, newruler, newdifference)
-        # print "backtrack ", start
+        #print "backtrack ", start
         contraintCheck(newmarks, start, newdifference, False)
         #newmarks.remove(start)
         newdomain.append(start)
@@ -62,6 +64,10 @@ def BT(L, M):
 
     final = []
 
+    #For Case (L, M) = (1,2)
+    if L == 1 and M == 2:
+        return 1,[0,1]
+
     for l in range(L,0,-1):
         global ans
         global flag
@@ -72,7 +78,7 @@ def BT(L, M):
         difference = set()
         flag = 0
         recursiveBacktracking(l, M, 1, marks, domain, ruler, difference)
-        # print l, "ans = ", ans
+        #print l, "ans = ", ans
         if len(ans) != 0:
             final = ans[:]
         else:
@@ -87,6 +93,7 @@ def BT(L, M):
 
 #Your backtracking+Forward checking function implementation
 def FC(L, M):
+
     "*** YOUR CODE HERE ***"
     return -1,[]
 
@@ -97,4 +104,5 @@ def CP(L, M):
 
 flag = 0
 ans = []
-print BT(8,4)
+print BT(1,2)
+print("--- %s seconds ---" % (time.time() - start_time))
