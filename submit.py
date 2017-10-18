@@ -34,16 +34,18 @@ def contraintCheck(newmarks, mark, newdifference, status):
 def forwardChecking(start, newmarks, newdomain, status):
     if len(newdomain) == 0:
         return False
-
+    #print "Start FC", start
     if status == True:
         for item in newmarks:
-            if item != start and abs(item - start) in newmarks:
+            if item != start and abs(item - start) in newdomain:
+                #print "Removed = ", abs(item - start)
                 newdomain.remove(abs(item - start))
     else:
         for item in newmarks:
-            if item != start:
-                newdomain.append(start+item)
-
+            #print "item", start+item
+            if item != start and abs(start - item) not in newdomain:
+                newdomain.append(abs(start - item))
+               # print "Added = ", item - start
     return True
 
 def recursiveBacktracking(L, M, start, newmarks, newdomain, newruler, newdifference, isFc):
@@ -52,7 +54,7 @@ def recursiveBacktracking(L, M, start, newmarks, newdomain, newruler, newdiffere
 
     if start >= L or flag == 1 or len(newdomain) == 0:
         return
-    #print "Marks =", newmarks, "start = ", start
+    #print "For :", isFc, "Marks =", newmarks, "start = ", start, "Domain = ",newdomain
 
     if contraintCheck(newmarks, start, newdifference, True) is True:
         newmarks.append(start)
@@ -74,9 +76,9 @@ def recursiveBacktracking(L, M, start, newmarks, newdomain, newruler, newdiffere
         #print "backtrack ", start
         contraintCheck(newmarks, start, newdifference, False)
         #newmarks.remove(start)
-        if isFc == False:
-            newdomain.append(start)
-        else:
+
+        newdomain.append(start)
+        if isFc == True:
             forwardChecking(start, newmarks, newdomain, False)
 
     recursiveBacktracking(L, M, start+1, newmarks, newdomain, newruler, newdifference, isFc)
@@ -157,10 +159,10 @@ def CP(L, M):
 
 flag = 0
 ans = []
-print BT(11,5)
+#print BT(6,4)
 
 flag = 0
 ans = []
-print FC(25,7)
+print FC(72,11)
 
 print("--- %s seconds ---" % (time.time() - start_time))
