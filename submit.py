@@ -6,12 +6,18 @@
 
 
 # Variables = {0, M1, M2, M3, ...., M, L}
-# Domain = {1, 2, 3, 4, ...., L}
+# Domain = {0,1, 2, 3, 4, ...., L}
 # Constraints = Difference between each pair of markers has to be unique
 # {M1-0 != M2- M1 != M3-M2 !=...., != ML - ML-1 != M3 - M1 != M4 - M1 !=.....}
 
 import time
 start_time = time.time()
+
+# At each step, we pick a variable from the list and check the difference of the variable
+# against all the already present differences in our set. We we find any difference already
+# present, that means the constrain is not satisfied, so we do not add this variable to our
+# solution list. When we are backtracking, the variable to be removed from the solution list,
+# we remove all the unique differences that we inserted while adding it to the solution list.
 
 def contraintCheck(marks, mark, difference, status):
 
@@ -28,7 +34,6 @@ def contraintCheck(marks, mark, difference, status):
         for item in temp:
             difference.add(item)
     else:
-
         marks.remove(mark)
         for point in marks:
             diff = abs(mark - point)
@@ -36,10 +41,16 @@ def contraintCheck(marks, mark, difference, status):
 
     return True
 
+# In Forward checking, we propagate the information from assigned variables to unassigned
+# variables. We keep track of remaining legal values in domain for unassigned variables.
+# As soon as any variable does not have any legal value in its domain, we backtrack. It
+# # helps in early detection of failure. For implementation, as soon as we assign a mark
+# we remove that variable from our domain. Along with this, we also remove the differences
+# of that variable with other variables already present in our solution list.
 
-def forwardChecking(start, marks, domain, status):
+def forwardChecking(start, marks, domain, status, M):
 
-    if len(domain) == 0:
+    if len(domain) == 0 or len(domain) < (M-2):
         return False
 
     if status:
@@ -52,11 +63,20 @@ def forwardChecking(start, marks, domain, status):
                 domain.append(abs(start - item))
     return True
 
+# Recurcive Backtracking looks for assignment for each variable from domain
+# where the constraint is satisfied. If keeps on assigning consistent values
+# to variables, if M marks are assigned, a solution is found. Else if we rea
+# ch the end of the domain, we backtrack the last assigned value. Repeat the
+# process for each assigned value, if solution is not found. Moreover, if for
+# given L, a solutions exists, we check for L-1 for a solution the same way.
+# We continue until for any 'l', no solution exists. We return the 'l+1' as
+# our optimal solution.
+
 def recursiveBacktracking(L, M, start, marks, domain, difference, isFc):
     global flag
     global ans
 
-    if start >= L or flag == 1 or len(domain) == 0:
+    if start >= L or flag == 1 or len(domain) == 0 or len(domain) < (M - 2):
         return
 
     if contraintCheck(marks, start, difference, True) is True:
@@ -68,10 +88,10 @@ def recursiveBacktracking(L, M, start, marks, domain, difference, isFc):
             if flag == 0:
                 ans = marks[:]
             flag = 1
-            return marks[-1], marks
+            return 1
 
         if isFc:
-            forwardChecking(start, marks, domain, True)
+            forwardChecking(start, marks, domain, True, M)
         if start + 1 in domain:
             recursiveBacktracking(L, M, start+1, marks, domain, difference, isFc)
 
@@ -79,7 +99,7 @@ def recursiveBacktracking(L, M, start, marks, domain, difference, isFc):
         domain.append(start)
 
         if isFc:
-            forwardChecking(start, marks, domain, False)
+            forwardChecking(start, marks, domain, False, M)
 
     recursiveBacktracking(L, M, start+1, marks, domain, difference, isFc)
 
@@ -146,11 +166,11 @@ def FC(L, M):
 #Bonus: backtracking + constraint propagation
 
 def CP(L, M):
+
     "*** YOUR CODE HERE ***"
     return -1,[]
 
 
 #print BT(6,4)
-print FC(6,4)
-
-print("--- %s seconds ---" % (time.time() - start_time))
+print FC(11,5)
+print(" %s seconds " % (time.time() - start_time))
