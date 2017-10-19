@@ -1,119 +1,8 @@
+
 #do not modify the function names
 #You are given L and M as input
 #Each of your functions should return the minimum possible L value alongside the marker positions
 #Or return -1,[] if no solution exists for the given L
-
-import time
-start_time = time.time()
-
-def contraintCheck(newmarks, mark, newdifference, status):
-    # print "DiFF Before = ", newdifference
-    temp = set()
-
-    if status == True:
-        for point in newmarks:
-            diff = abs(mark - point)
-            if diff not in newdifference and diff not in temp:
-                temp.add(diff)
-            else:
-                return False
-
-        for item in temp:
-            newdifference.add(item)
-    else:
-       # print "mark in check", mark
-        newmarks.remove(mark)
-        for point in newmarks:
-            diff = abs(mark - point)
-            newdifference.remove(diff)
-    # print "DiFF After = ", newdifference
-    return True
-
-
-
-def forwardChecking(start, newmarks, newdomain, status):
-    if len(newdomain) == 0:
-        return False
-    #print "Start FC", start
-    if status == True:
-        for item in newmarks:
-            if item != start and abs(item - start) in newdomain:
-                #print "Removed = ", abs(item - start)
-                newdomain.remove(abs(item - start))
-    else:
-        for item in newmarks:
-            #print "item", start+item
-            if item != start and abs(start - item) not in newdomain:
-                newdomain.append(abs(start - item))
-               # print "Added = ", item - start
-    return True
-
-def recursiveBacktracking(L, M, start, newmarks, newdomain, newruler, newdifference, isFc):
-    global flag
-    global ans
-
-    if start >= L or flag == 1 or len(newdomain) == 0:
-        return
-    #print "For :", isFc, "Marks =", newmarks, "start = ", start, "Domain = ",newdomain
-
-    if contraintCheck(newmarks, start, newdifference, True) is True:
-        newmarks.append(start)
-        if isFc == False:
-            newdomain.remove(start)
-        if len(newmarks) == M:
-            # print "Solution Found"
-            newmarks.sort()
-            # print "Sol =", newmarks
-            if flag == 0:
-                ans = newmarks[:]
-                # print "Ans = ", ans
-            flag = 1
-            return newmarks[-1], newmarks
-        if isFc == True:
-            forwardChecking(start, newmarks, newdomain, True)
-
-        recursiveBacktracking(L, M, start+1, newmarks, newdomain, newruler, newdifference, isFc)
-        #print "backtrack ", start
-        contraintCheck(newmarks, start, newdifference, False)
-        #newmarks.remove(start)
-
-        newdomain.append(start)
-        if isFc == True:
-            forwardChecking(start, newmarks, newdomain, False)
-
-    recursiveBacktracking(L, M, start+1, newmarks, newdomain, newruler, newdifference, isFc)
-
-#Your backtracking function implementation
-def BT(L, M):
-
-
-    final = []
-
-    #For Case (L, M) = (1,2)
-    if L == 1 and M == 2:
-        return 1,[0,1]
-
-    for l in range(L,0,-1):
-        global ans
-        global flag
-        ans = []
-        marks = [0,l]
-        ruler = range(1,l)
-        domain = range(1,l)
-        difference = set()
-        flag = 0
-        recursiveBacktracking(l, M, 1, marks, domain, ruler, difference, False)
-        #print l, "ans = ", ans
-        if len(ans) != 0:
-            final = ans[:]
-        else:
-            break
-
-    if len(final) != 0:
-        return final[-1],final
-
-    "*** YOUR CODE HERE ***"
-    return -1,[]
 
 
 # Variables = {0, M1, M2, M3, ...., M, L}
@@ -121,48 +10,147 @@ def BT(L, M):
 # Constraints = Difference between each pair of markers has to be unique
 # {M1-0 != M2- M1 != M3-M2 !=...., != ML - ML-1 != M3 - M1 != M4 - M1 !=.....}
 
-#Your backtracking + forwardchecking function implementation
-def FC(L, M):
+import time
+start_time = time.time()
+
+def contraintCheck(marks, mark, difference, status):
+
+    temp = set()
+
+    if status:
+        for point in marks:
+            diff = abs(mark - point)
+            if diff not in difference and diff not in temp:
+                temp.add(diff)
+            else:
+                return False
+
+        for item in temp:
+            difference.add(item)
+    else:
+
+        marks.remove(mark)
+        for point in marks:
+            diff = abs(mark - point)
+            difference.remove(diff)
+
+    return True
+
+
+def forwardChecking(start, marks, domain, status):
+
+    if len(domain) == 0:
+        return False
+
+    if status:
+        for item in marks:
+            if item != start and abs(item - start) in domain:
+                domain.remove(abs(item - start))
+    else:
+        for item in marks:
+            if item != start and abs(start - item) not in domain:
+                domain.append(abs(start - item))
+    return True
+
+def recursiveBacktracking(L, M, start, marks, domain, difference, isFc):
+    global flag
+    global ans
+
+    if start >= L or flag == 1 or len(domain) == 0:
+        return
+
+    if contraintCheck(marks, start, difference, True) is True:
+        marks.append(start)
+        if not isFc:
+            domain.remove(start)
+        if len(marks) == M:
+            marks.sort()
+            if flag == 0:
+                ans = marks[:]
+            flag = 1
+            return marks[-1], marks
+
+        if isFc:
+            forwardChecking(start, marks, domain, True)
+        if start + 1 in domain:
+            recursiveBacktracking(L, M, start+1, marks, domain, difference, isFc)
+
+        contraintCheck(marks, start, difference, False)
+        domain.append(start)
+
+        if isFc:
+            forwardChecking(start, marks, domain, False)
+
+    recursiveBacktracking(L, M, start+1, marks, domain, difference, isFc)
+
+#Your backtracking function implementation
+
+def BT(L, M):
 
     final = []
-
-    #For Case (L, M) = (1,2)
-    if L == 1 and M == 2:
-        return 1,[0,1]
 
     for l in range(L,0,-1):
         global ans
         global flag
         ans = []
         marks = [0,l]
-        ruler = range(1,l)
         domain = range(1,l)
         difference = set()
         flag = 0
-        recursiveBacktracking(l, M, 1, marks, domain, ruler, difference, True)
-        #print l, "ans = ", ans
-        if len(ans) != 0:
+
+        if not domain:
+            return marks
+        recursiveBacktracking(l, M, 1, marks, domain, difference, False)
+
+        if len(ans):
             final = ans[:]
         else:
             break
 
-    if len(final) != 0:
+    if len(final):
+        return final[-1],final
+
+    "*** YOUR CODE HERE ***"
+    return -1,[]
+
+#Your backtracking + forwardchecking function implementation
+
+def FC(L, M):
+
+    final = []
+
+    for l in range(L,0,-1):
+        global ans
+        global flag
+        ans = []
+        marks = [0,l]
+        domain = range(1,l)
+        difference = set()
+        flag = 0
+
+        if not domain:
+            return marks
+        recursiveBacktracking(l, M, 1, marks, domain, difference, True)
+
+        if len(ans):
+            final = ans[:]
+        else:
+            break
+
+    if len(final):
         return final[-1],final
 
     "*** YOUR CODE HERE ***"
     return -1,[]
 
 #Bonus: backtracking + constraint propagation
+
 def CP(L, M):
     "*** YOUR CODE HERE ***"
     return -1,[]
 
-flag = 0
-ans = []
-#print BT(6,4)
 
-flag = 0
-ans = []
-print FC(72,11)
+#print BT(6,4)
+print FC(6,4)
 
 print("--- %s seconds ---" % (time.time() - start_time))
