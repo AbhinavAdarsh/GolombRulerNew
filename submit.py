@@ -10,9 +10,6 @@
 # Constraints = Difference between each pair of markers has to be unique
 # {M1-0 != M2- M1 != M3-M2 !=...., != ML - ML-1 != M3 - M1 != M4 - M1 !=.....}
 
-import time
-start_time = time.time()
-
 # At each step, we pick a variable from the list and check the difference of the variable
 # against all the already present differences in our set. We we find any difference already
 # present, that means the constrain is not satisfied, so we do not add this variable to our
@@ -50,20 +47,23 @@ def contraintCheck(marks, mark, difference, status):
 
 def forwardChecking(start, marks, domain, status, M):
 
-    if len(domain) == 0 or len(domain) < (M-2):
+    if len(domain) < (M-2):
         return False
 
     if status:
         for item in marks:
-            if item != start and abs(item - start) in domain:
-                domain.remove(abs(item - start))
+            d1 = abs(item - start)
+            if d1 in domain:
+                domain.remove(d1)
+
     else:
         for item in marks:
-            if item != start and abs(start - item) not in domain:
-                domain.append(abs(start - item))
+            d1 = abs(item - start)
+            if d1 not in domain:
+                domain.append(d1)
     return True
 
-# Recurcive Backtracking looks for assignment for each variable from domain
+# Recursive Backtracking looks for assignment for each variable from domain
 # where the constraint is satisfied. If keeps on assigning consistent values
 # to variables, if M marks are assigned, a solution is found. Else if we rea
 # ch the end of the domain, we backtrack the last assigned value. Repeat the
@@ -72,11 +72,11 @@ def forwardChecking(start, marks, domain, status, M):
 # We continue until for any 'l', no solution exists. We return the 'l+1' as
 # our optimal solution.
 
-def recursiveBacktracking(L, M, start, marks, domain, difference, isFc):
+def recursiveBacktracking(l, M, start, marks, domain, difference, isFc):
     global flag
     global ans
 
-    if start >= L or flag == 1 or len(domain) == 0 or len(domain) < (M - 2):
+    if start >= l or flag == 1 or len(domain) < (M - 2):
         return
 
     if contraintCheck(marks, start, difference, True) is True:
@@ -93,7 +93,7 @@ def recursiveBacktracking(L, M, start, marks, domain, difference, isFc):
         if isFc:
             forwardChecking(start, marks, domain, True, M)
         if start + 1 in domain:
-            recursiveBacktracking(L, M, start+1, marks, domain, difference, isFc)
+            recursiveBacktracking(l, M, start+1, marks, domain, difference, isFc)
 
         contraintCheck(marks, start, difference, False)
         domain.append(start)
@@ -101,7 +101,7 @@ def recursiveBacktracking(L, M, start, marks, domain, difference, isFc):
         if isFc:
             forwardChecking(start, marks, domain, False, M)
 
-    recursiveBacktracking(L, M, start+1, marks, domain, difference, isFc)
+    recursiveBacktracking(l, M, start+1, marks, domain, difference, isFc)
 
 #Your backtracking function implementation
 
@@ -112,6 +112,7 @@ def BT(L, M):
     for l in range(L,0,-1):
         global ans
         global flag
+
         ans = []
         marks = [0,l]
         domain = range(1,l)
@@ -142,6 +143,7 @@ def FC(L, M):
     for l in range(L,0,-1):
         global ans
         global flag
+
         ans = []
         marks = [0,l]
         domain = range(1,l)
@@ -169,8 +171,3 @@ def CP(L, M):
 
     "*** YOUR CODE HERE ***"
     return -1,[]
-
-
-#print BT(6,4)
-print FC(11,5)
-print(" %s seconds " % (time.time() - start_time))
